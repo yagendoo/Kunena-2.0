@@ -48,7 +48,6 @@ abstract class KunenaRoute {
 	static $search = false;
 
 	static $childlist = false;
-	static $subtree = array();
 	static $parent = array();
 	static $uris = array();
 	static $urisSave = false;
@@ -165,7 +164,7 @@ abstract class KunenaRoute {
 		// FIXME: enable caching after fixing the issues
 		$data = false; // $cache->get($user->userid, 'com_kunena.route');
 		if ($data !== false) {
-			list(self::$subtree, self::$uris) = unserialize($data);
+			self::$uris = unserialize($data);
 		}
 		KUNENA_PROFILER ? KunenaProfiler::instance()->stop('function '.__CLASS__.'::'.__FUNCTION__.'()') : null;
 	}
@@ -174,11 +173,10 @@ abstract class KunenaRoute {
 		if (!self::$urisSave) return;
 		KUNENA_PROFILER ? KunenaProfiler::instance()->start('function '.__CLASS__.'::'.__FUNCTION__.'()') : null;
 		$user = KunenaUserHelper::getMyself();
-		$data = array(self::$subtree, self::$uris);
 		$cache = self::getCache();
 		// TODO: can use viewlevels instead of userid
 		// FIXME: enable caching after fixing the issues
-		//$cache->store(serialize($data), $user->userid, 'com_kunena.route');
+		//$cache->store(serialize(self::$uris), $user->userid, 'com_kunena.route');
 		KUNENA_PROFILER ? KunenaProfiler::instance()->stop('function '.__CLASS__.'::'.__FUNCTION__.'()') : null;
 	}
 
@@ -405,8 +403,9 @@ abstract class KunenaRoute {
 			$language = JFactory::getDocument()->getLanguage();
 			$cache = self::getCache();
 
-			// FIXME: enable caching after fixing the issues
-			self::$search = false; //unserialize($cache->get('search', "com_kunena.route.{$language}.{$user->userid}"));
+			// TODO: Make this configurable: viewlevel or userid (needed in some ACL changing extensions?)
+			// TODO: What if menu items change?
+			self::$search = unserialize($cache->get('search', "com_kunena.route.{$language}.{$user->userid}"));
 			if (self::$search === false) {
 				self::$search['home'] = array();
 				foreach ( self::$menu as $item ) {
@@ -427,8 +426,8 @@ abstract class KunenaRoute {
 						self::$search[$item->query['view']][$home ? $home->id : 0][$item->id] = $item->id;
 					}
 				}
-				// FIXME: enable caching after fixing the issues
-				//$cache->store(serialize(self::$search), 'search', "com_kunena.route.{$language}.{$user->userid}");
+				// TODO: Make this configurable: viewlevel or userid (needed in some ACL changing extensions?)
+				$cache->store(serialize(self::$search), 'search', "com_kunena.route.{$language}.{$user->userid}");
 			}
 		}
 		KUNENA_PROFILER ? KunenaProfiler::instance()->stop('function '.__CLASS__.'::'.__FUNCTION__.'()') : null;
