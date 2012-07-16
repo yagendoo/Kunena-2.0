@@ -296,43 +296,50 @@ window.addEvent('domready', function(){
 	}
 
 	public function getAllowedCategories($user = null) {
-		static $read = array();
-
 		KUNENA_PROFILER ? KunenaProfiler::instance()->start('function '.__CLASS__.'::'.__FUNCTION__.'()') : null;
-		$user = KunenaFactory::getUser($user);
-		$id = $user->userid;
+		$id = KunenaFactory::getUser($user)->userid;
+		$isMe = $id && $id == KunenaUserHelper::getMyself()->userid;
 
-		if (!isset($read[$id])) {
+		if ($isMe) {
 			$app = JFactory::getApplication();
-			// TODO: handle guests/bots with no userstate
-			$read[$id] = $app->getUserState("com_kunena.user{$id}_read");
-			if ($read[$id] === null) {
-				$read[$id] = array();
-				$categories = KunenaForumCategoryHelper::getCategories(false, false, 'none');
-				foreach ( $categories as $category ) {
-					// Remove unpublished categories
-					if (!$category->published) {
-						unset($categories[$category->id]);
-					}
-					// Moderators have always access
-					if (self::isModerator($id, $category->id)) {
-						$read[$id][$category->id] = $category->id;
-						unset($categories[$category->id]);
-					}
-				}
+			$allowed = $app->getUserState("com_kunena.access");
+		} else {
+			$cache = JFactory::getCache('com_kunena', 'output');
+			$cachekey = "access.user{$id}";
+			$cachegroup = 'com_kunena.category';
+			$allowed = unserialize($cache->get($cachekey, $cachegroup));
+		}
 
-				// Get external authorization
-				if (!empty($categories)) {
-					foreach ($this->accesstypes['all'] as $access) {
-						if (method_exists($access, 'authoriseCategories')) {
-							$read[$id] += $access->authoriseCategories($id, $categories);
-						}
+		if (!is_array($allowed)) {
+			$allowed = array();
+			$categories = KunenaForumCategoryHelper::getCategories(false, false, 'none');
+			foreach ( $categories as $category ) {
+				// Remove unpublished categories
+				if (!$category->published) {
+					unset($categories[$category->id]);
+				}
+				// Moderators have always access
+				if (self::isModerator($id, $category->id)) {
+					$allowed[$category->id] = $category->id;
+					unset($categories[$category->id]);
+				}
+			}
+
+			// Get external authorization
+			if (!empty($categories)) {
+				foreach ($this->accesstypes['all'] as $access) {
+					if (method_exists($access, 'authoriseCategories')) {
+						$allowed += $access->authoriseCategories($id, $categories);
 					}
 				}
-				$app->setUserState("com_kunena.user{$id}_read", $read[$id]);
+			}
+			if ($isMe) {
+				$app->setUserState("com_kunena.access", $allowed);
+			} else {
+				$cache->store(serialize($allowed), $cachekey, $cachegroup);
 			}
 		}
-		$allowed = $read[$id];
+
 		KUNENA_PROFILER ? KunenaProfiler::instance()->stop('function '.__CLASS__.'::'.__FUNCTION__.'()') : null;
 		return $allowed;
 	}
