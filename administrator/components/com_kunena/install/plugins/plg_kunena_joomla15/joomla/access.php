@@ -214,7 +214,7 @@ class KunenaAccessJoomla {
 			$user = $my;
 		} elseif ($user->id) {
 			// Other users
-			$aid->aid = 1 ;
+			$user->aid = 1 ;
 			$acl = JFactory::getACL();
 			$grp = $acl->getAroGroup($user->id);
 			if ($acl->is_group_child_of($grp->name, 'Registered') ||  $acl->is_group_child_of($grp->name, 'Public Backend')) {
