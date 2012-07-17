@@ -91,7 +91,7 @@ abstract class KunenaRoute {
 		}
 		KUNENA_PROFILER ? KunenaProfiler::instance()->start('function '.__CLASS__.'::'.__FUNCTION__.'()') : null;
 
-		$key = (self::$home ? self::$home->id : 0) .'-'.(int)$xhtml.(int)$ssl. ($uri instanceof JURI ? $uri->toString () : (string) $uri);
+		$key = (self::$home ? self::$home->id : 0) .'-'.intval($xhtml).intval($ssl). ($uri instanceof JURI ? $uri->toString () : (string) $uri);
 		if (!$uri || (is_string($uri) && $uri[0]=='&')) {
 			$key = 'a'.(self::$active ? self::$active->id : '') . '-' . $key;
 		}
@@ -338,7 +338,8 @@ abstract class KunenaRoute {
 			return false;
 		}
 		// Support legacy URIs
-		if ($uri->getVar('func')) {
+		$legacy_urls = self::$config->get('legacy_urls', 0);
+		if ($legacy_urls && $uri->getVar('func')) {
 			$result = KunenaRouteLegacy::convert($uri);
 			KUNENA_PROFILER ? KunenaProfiler::instance()->stop('function '.__CLASS__.'::'.__FUNCTION__.'()') : null;
 			if (!$result) return false;
@@ -347,7 +348,7 @@ abstract class KunenaRoute {
 		// Check URI
 		switch ($uri->getVar('view', 'home')) {
 			case 'announcement':
-				KunenaRouteLegacy::convert($uri);
+				if ($legacy_urls) KunenaRouteLegacy::convert($uri);
 				$r = array();
 				break;
 			case 'category':
@@ -386,6 +387,8 @@ abstract class KunenaRoute {
 				$r = array('search', 'limitstart', 'limit');
 				break;
 			default:
+				if (!$legacy_urls) return false;
+
 				$result = KunenaRouteLegacy::convert($uri);
 				if (!$result) {
 					KUNENA_PROFILER ? KunenaProfiler::instance()->stop('function '.__CLASS__.'::'.__FUNCTION__.'()') : null;
@@ -405,8 +408,9 @@ abstract class KunenaRoute {
 
 			// TODO: Make this configurable: viewlevel or userid (needed in some ACL changing extensions?)
 			// TODO: What if menu items change?
-			self::$search = unserialize($cache->get('search', "com_kunena.route.{$language}.{$user->userid}"));
-			if (self::$search === false) {
+			$version = 1;
+			list($check, self::$search) = unserialize($cache->get('search', "com_kunena.route.{$language}.{$user->userid}"));
+			if ($check != $version) {
 				self::$search['home'] = array();
 				foreach ( self::$menu as $item ) {
 					// Joomla! 1.5:
@@ -427,7 +431,7 @@ abstract class KunenaRoute {
 					}
 				}
 				// TODO: Make this configurable: viewlevel or userid (needed in some ACL changing extensions?)
-				$cache->store(serialize(self::$search), 'search', "com_kunena.route.{$language}.{$user->userid}");
+				$cache->store(serialize(array($version, self::$search)), 'search', "com_kunena.route.{$language}.{$user->userid}");
 			}
 		}
 		KUNENA_PROFILER ? KunenaProfiler::instance()->stop('function '.__CLASS__.'::'.__FUNCTION__.'()') : null;

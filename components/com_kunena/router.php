@@ -83,7 +83,7 @@ function KunenaBuildRoute(&$query) {
 	// We may have catid also in the menu item (it will not be in URI)
 	$numeric = !empty ( $menuitem->query ['catid'] );
 
-	// Support URIs like: /forum/12-my_category
+	// Support URIs like: /forum/my_category
 	if (!empty ( $query ['catid'] ) && ($view == 'category' || $view == 'topic' || $view == 'home')) {
 		// TODO: ensure that we have view=category/topic
 		$catid = ( int ) $query ['catid'];
@@ -101,7 +101,7 @@ function KunenaBuildRoute(&$query) {
 		unset ( $query ['catid'] );
 	}
 
-	// Support URIs like: /forum/12-category/123-topic
+	// Support URIs like: /forum/category/123-topic
 	if (!empty ( $query ['id'] ) && $numeric) {
 		$id = (int) $query ['id'];
 		if ($id) {
@@ -128,13 +128,13 @@ function KunenaBuildRoute(&$query) {
 		$segments [] = $view;
 	}
 
-	// Support URIs like: /forum/12-category/123-topic/reply
+	// Support URIs like: /forum/category/123-topic/reply
 	if (!empty ( $query ['layout'] )) {
 		// Use filtered value
 		$segments [] = (string) preg_replace( '/[^a-z]/', '', $query ['layout'] );
 	}
 
-	// Support URIs like: /forum/12-category/123-topic/reply/124
+	// Support URIs like: /forum/category/123-topic/reply/124
 	if (isset ( $query ['mesid'] ) && $numeric) {
 		$segments [] = (int) $query ['mesid'];
 		unset ( $query ['mesid'] );

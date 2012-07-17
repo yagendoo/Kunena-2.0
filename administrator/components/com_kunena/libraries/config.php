@@ -192,7 +192,7 @@ class KunenaConfig extends JObject {
 	public $pubprofile = 1;
 	// New for 1.6.5
 	public $thankyou_max = 10;
-	// New for 1.6.6
+	// New for 1.7.0
 	public $email_recipient_count = 0;
 	public $email_recipient_privacy = 'bcc';
 	public $email_visible_address = '';
@@ -219,6 +219,8 @@ class KunenaConfig extends JObject {
 	public $cache = 1;
 	public $cache_time = 60; // 1 minute
 	public $ebay_affiliate_id = 5337089937;
+	// New for 2.0.2
+	public $legacy_urls = 1; // No configuration option
 
 	public function __construct() {
 		parent::__construct ();

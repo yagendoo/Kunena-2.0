@@ -301,6 +301,7 @@ window.addEvent('domready', function(){
 		$isMe = $id && $id == KunenaUserHelper::getMyself()->userid;
 
 		if ($isMe) {
+			// TODO: if caching is off, we might want to store guest into session as well
 			$app = JFactory::getApplication();
 			$allowed = $app->getUserState("com_kunena.access");
 		} else {
