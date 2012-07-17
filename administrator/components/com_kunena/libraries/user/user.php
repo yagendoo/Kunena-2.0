@@ -193,13 +193,13 @@ class KunenaUser extends JObject {
 		return KunenaUserHelper::isOnline($this->userid, $yes, $no);
 	}
 
-	public function getAllowedCategories($rule = 'read') {
-		if (!isset($this->_allowed[$rule])) {
+	public function getAllowedCategories() {
+		if (!isset($this->_allowed)) {
 			$acl = KunenaAccess::getInstance();
-			$allowed = $acl->getAllowedCategories ( $this->userid, $rule );
-			$this->_allowed[$rule] = $allowed;
+			$allowed = $acl->getAllowedCategories ( $this->userid );
+			$this->_allowed = $allowed;
 		}
-		return $this->_allowed[$rule];
+		return $this->_allowed;
 	}
 
 	public function getMessageOrdering() {
