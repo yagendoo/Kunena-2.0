@@ -32,12 +32,12 @@ class KunenaSession extends JObject
 	}
 
 	public static function getInstance( $update=false, $userid = null )
-	{
+	{		
 		if (!self::$_instance) {
 			$my = JFactory::getUser();
-			$db = JFactory::getDBO();
-			self::$_instance = new KunenaSession($userid !== null ? $userid : $my->id);
-			if ($update) self::$_instance->updateSessionInfo();
+			$db = JFactory::getDBO();			
+			self::$_instance = new KunenaSession($userid !== null ? $userid : $my->id);			
+			if ($update) self::$_instance->updateSessionInfo();			
 		}
 		return self::$_instance;
 	}
@@ -168,9 +168,9 @@ class KunenaSession extends JObject
 
 	public function isNewSession()
 	{
-		// perform session timeout check
-		$lifetime = max(intval(JFactory::getConfig()->get( 'config.lifetime' ))*60, intval(KunenaFactory::getConfig ()->sessiontimeout));
-		$this->_sessiontimeout = ($this->currvisit + $lifetime < JFactory::getDate()->toUnix());
+		// perform session timeout check		
+		$lifetime = max(intval(JFactory::getConfig()->get('lifetime'))*60, intval(KunenaFactory::getConfig ()->sessiontimeout));		
+		$this->_sessiontimeout = ($this->currvisit + $lifetime < JFactory::getDate()->toUnix());		
 		return $this->_sessiontimeout;
 	}
 
@@ -183,12 +183,13 @@ class KunenaSession extends JObject
 	public function updateSessionInfo()
 	{
 		// If this is a new session, reset the lasttime colum with the timestamp
-		// of the last saved currvisit - only after that can we reset currvisit to now before the store
+		// of the last saved currvisit - only after that can we reset currvisit to now before the store		
 		if ($this->isNewSession())
-		{
+		{			
 			$this->lasttime = $this->currvisit;
 			$this->readtopics = 0;
-		}
+		}		
+
 		$this->currvisit = JFactory::getDate()->toUnix();
 	}
 }

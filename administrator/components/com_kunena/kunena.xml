@@ -2,9 +2,9 @@
 <!DOCTYPE extension>
 <extension type="component" version="2.5" method="upgrade">
 	<name>com_kunena</name>
-	<version>2.9.92-DEV</version>
-	<versionname>Wanga</versionname>
-	<creationDate>@kunenaversiondate@</creationDate>
+	<version>2.0.4</version>
+	<versionname>Pharmacopoeia</versionname>
+	<creationDate>2013-01-18</creationDate>
 	<author>Kunena Team</author>
 	<authorEmail>kunena@kunena.org</authorEmail>
 	<authorUrl>http://www.kunena.org</authorUrl>
@@ -33,6 +33,6 @@
 		</files>
 	</administration>
 	<updateservers>
-		<server type="collection" priority="1" name="Kunena 3.0 Update Site">http://update.kunena.org/3.0</server>
+		<server type="collection" priority="1" name="Kunena 2.0 Update Site">http://update.kunena.org/2.0</server>
 	</updateservers>
 </extension>

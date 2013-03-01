@@ -9,12 +9,14 @@
  **/
 defined ( '_JEXEC' ) or die ();
 
+jimport('joomla.application.component.view');
+
 /**
  * The HTML Kunena configuration view.
  *
  * @version		1.6
  */
-class KunenaViewInstall extends JViewLegacy
+class KunenaViewInstall extends JView
 {
 	/**
 	 * Method to display the view.
@@ -101,8 +103,8 @@ class KunenaViewInstall extends JViewLegacy
 	}
 
 	function getActionURL() {
-		if ($this->error) return "location.replace('index.php?option=com_kunena&view=install&task=restart&".JSession::getFormToken()."=1');";
-		return "location.replace('index.php?option=com_kunena&view=install&task=run&n={$this->cnt}&".JSession::getFormToken()."=1');";
+		if ($this->error) return "location.replace('index.php?option=com_kunena&view=install&task=restart&". JSession::getFormToken()."=1');";
+		return "location.replace('index.php?option=com_kunena&view=install&task=run&n={$this->cnt}&". JSession::getFormToken()."=1');";
 	}
 
 	function getActionText($version, $type='', $action=null) {

@@ -53,7 +53,7 @@ class KunenaForumAnnouncementHelper {
 	}
 
 	static public function getUri($layout = null) {
-		$uri = new JUri('index.php?option=com_kunena&view=announcement');
+		$uri = new JURI('index.php?option=com_kunena&view=announcement');
 		if ($layout) $uri->setVar('layout', $layout);
 		return $uri;
 	}

@@ -14,67 +14,19 @@ defined ( '_JEXEC' ) or die ();
  * Attachments view for Kunena backend
  */
 class KunenaAdminViewAttachments extends KunenaView {
-	function display($tpl = null) {
-		$this->setToolbar();
+	function displayDefault() {
 		$this->items = $this->get('Items');
-		$this->state = $this->get('state');
-		$this->pagination = $this->get ( 'Pagination' );
+		$this->navigation = $this->get ( 'AdminNavigation' );
+		$this->setToolBarDefault();
 
-		$this->sortFields = $this->getSortFields();
-		$this->sortDirectionFields = $this->getSortDirectionFields();
-
-		$this->filterSearch	= $this->escape($this->state->get('list.search'));
-		$this->filterTitle	= $this->escape($this->state->get('filter.title'));
-		$this->filterType	= $this->escape($this->state->get('filter.type'));
-		$this->filterSize	= $this->escape($this->state->get('filter.size'));
-		$this->filterDimensions	= $this->escape($this->state->get('filter.dims'));
-		$this->filterUsername = $this->escape($this->state->get('filter.username'));
-		$this->filterPost	= $this->escape($this->state->get('filter.post'));
-		$this->listOrdering	= $this->escape($this->state->get('list.ordering'));
-		$this->listDirection	= $this->escape($this->state->get('list.direction'));
-
-		$this->sortDirectionOrdering = $this->getSortDirectionOrdering();
-
-		return parent::display($tpl);
-
+		$this->display ();
 	}
 
-	protected function setToolbar() {
+	protected function setToolBarDefault() {
 		// Set the titlebar text
-		JToolBarHelper::title ( JText::_('COM_KUNENA').': '.JText::_('COM_KUNENA_FILE_MANAGER'), 'kunena.png' );
+		JToolBarHelper::title ( JText::_('COM_KUNENA'), 'kunena.png' );
 		JToolBarHelper::spacer();
-		if (version_compare(JVERSION, '3', '>')) {
-			JToolBarHelper::custom('delete','trash.png','trash_f2.png', 'COM_KUNENA_GEN_DELETE');
-		} else {
-			JToolBarHelper::custom('delete','delete.png','delete_f2.png', 'COM_KUNENA_GEN_DELETE');
-		}
+		JToolBarHelper::custom('delete','restore.png','restore_f2.png', 'COM_KUNENA_GEN_DELETE');
 		JToolBarHelper::spacer();
-	}
-
-	protected function getSortFields() {
-		$sortFields = array();
-		$sortFields[] = JHtml::_('select.option', 'a.filename', JText::_('COM_KUNENA_FILENAME'));
-		$sortFields[] = JHtml::_('select.option', 'a.filetype', JText::_('COM_KUNENA_ATTACHMENTS_FILETYPE'));
-		$sortFields[] = JHtml::_('select.option', 'a.size', JText::_('COM_KUNENA_FILESIZE'));
-		$sortFields[] = JHtml::_('select.option', 'a.id', JText::_('JGRID_HEADING_ID'));
-
-		return $sortFields;
-	}
-
-	protected function getSortDirectionFields() {
-		$sortDirection = array();
-		$sortDirection[] = JHtml::_('select.option', 'asc', JText::_('JGLOBAL_ORDER_ASCENDING'));
-		$sortDirection[] = JHtml::_('select.option', 'desc', JText::_('JGLOBAL_ORDER_DESCENDING'));
-
-		return $sortDirection;
-	}
-
-	// TODO: remove it when J2.5 support is dropped
-	protected function getSortDirectionOrdering() {
-		$sortDirection = array();
-		$sortDirection[] = JHtml::_('select.option', 'asc', JText::_('COM_KUNENA_FIELD_LABEL_ASCENDING'));
-		$sortDirection[] = JHtml::_('select.option', 'desc', JText::_('COM_KUNENA_FIELD_LABEL_DESCENDING'));
-
-		return $sortDirection;
 	}
 }

@@ -23,7 +23,7 @@ class KunenaControllerAnnouncement extends KunenaController {
 	}
 
 	public function publish() {
-		if (! JSession::checkToken('post')) {
+		if (! JRequest::checkToken ()) {
 			$this->app->enqueueMessage ( JText::_ ( 'COM_KUNENA_ERROR_TOKEN' ), 'error' );
 			$this->redirectBack ();
 		}
@@ -43,7 +43,7 @@ class KunenaControllerAnnouncement extends KunenaController {
 	}
 
 	public function unpublish() {
-		if (! JSession::checkToken('post')) {
+		if (! JRequest::checkToken ()) {
 			$this->app->enqueueMessage ( JText::_ ( 'COM_KUNENA_ERROR_TOKEN' ), 'error' );
 			$this->redirectBack ();
 		}
@@ -70,7 +70,7 @@ class KunenaControllerAnnouncement extends KunenaController {
 	}
 
 	public function delete() {
-		if (! JSession::checkToken ('request')) {
+		if (! JRequest::checkToken ('request')) {
 			$this->app->enqueueMessage ( JText::_ ( 'COM_KUNENA_ERROR_TOKEN' ), 'error' );
 			$this->redirectBack ();
 		}
@@ -88,7 +88,7 @@ class KunenaControllerAnnouncement extends KunenaController {
 	}
 
 	public function save() {
-		if (! JSession::checkToken('post')) {
+		if (! JRequest::checkToken ()) {
 			$this->app->enqueueMessage ( JText::_ ( 'COM_KUNENA_ERROR_TOKEN' ), 'error' );
 			$this->redirectBack ();
 		}

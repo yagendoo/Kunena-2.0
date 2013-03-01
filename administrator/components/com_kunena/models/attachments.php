@@ -4,36 +4,22 @@
  * @package Kunena.Administrator
  * @subpackage Models
  *
- * @copyright (C) 2008 - 2013 Kunena Team. All rights reserved.
+ * @copyright (C) 2008 - 2012 Kunena Team. All rights reserved.
  * @license http://www.gnu.org/copyleft/gpl.html GNU/GPL
  * @link http://www.kunena.org
  **/
 defined ( '_JEXEC' ) or die ();
 
-jimport ( 'joomla.application.component.modellist' );
+jimport ( 'joomla.application.component.model' );
+jimport( 'joomla.html.pagination' );
 
 /**
  * Attachments Model for Kunena
  *
  * @since 2.0
  */
-class KunenaAdminModelAttachments extends JModelList {
-
-	public function __construct($config = array()) {
-		if (empty($config['filter_fields'])) {
-			$config['filter_fields'] = array(
-				'id',
-				'post',
-				'username',
-				'size',
-				'folder',
-				'filetype',
-				'filename',
-			);
-		}
-
-		parent::__construct($config);
-	}
+class KunenaAdminModelAttachments extends KunenaModel {
+	protected $__state_set = false;
 
 	/**
 	 * Method to auto-populate the model state.
@@ -41,127 +27,52 @@ class KunenaAdminModelAttachments extends JModelList {
 	 * @return	void
 	 * @since	1.6
 	 */
-	protected function populateState($ordering = null, $direction = null) {
-		$app = JFactory::getApplication();
-
-		// Adjust the context to support modal layouts.
-		$layout = $app->input->get('layout');
-		if ($layout) {
-			$this->context .= '.'.$layout;
-		}
-
+	protected function populateState() {
 		// List state information
-		$value = $this->getUserStateFromRequest ( $this->context .'.filter.search', 'filter_search', '', 'string' );
-		$this->setState ( 'filter.search', $value );
+		$value = $this->getUserStateFromRequest ( "com_kunena.admin.attachments.list.limit", 'limit', $this->app->getCfg ( 'list_limit' ), 'int' );
+		$this->setState ( 'list.limit', $value );
 
-		$value = $this->getUserStateFromRequest ( $this->context .'.filter.title', 'filter_title', '', 'string' );
-		$this->setState ( 'filter.title', $value );
+		$value = $this->getUserStateFromRequest ( 'com_kunena.admin.attachments.list.ordering', 'filter_order', 'a.filename', 'cmd' );
+		$this->setState ( 'list.ordering', $value );
 
-		$value = $this->getUserStateFromRequest ( $this->context .'.filter.type', 'filter_type', '', 'string' );
-		$this->setState ( 'filter.type', $value );
+		$value = $this->getUserStateFromRequest ( "com_kunena.admin.attachments.list.start", 'limitstart', 0, 'int' );
+		$this->setState ( 'list.start', $value );
 
-		$value = $this->getUserStateFromRequest ( $this->context .'.filter.size', 'filter_size', '', 'string' );
-		$this->setState ( 'filter.size', $value );
+		$value = $this->getUserStateFromRequest ( 'com_kunena.admin.attachments.list.direction', 'filter_order_Dir', 'asc', 'word' );
+		if ($value != 'asc')
+			$value = 'desc';
+		$this->setState ( 'list.direction', $value );
 
-		$value = $this->getUserStateFromRequest ( $this->context .'.filter.dims', 'filter_dims', '', 'string' );
-		$this->setState ( 'filter.dims', $value );
-
-		$value = $this->getUserStateFromRequest (  $this->context .'.filter.username', 'filter_username', '', 'string' );
-		$this->setState ( 'filter.username', $value );
-
-		$value = $this->getUserStateFromRequest (  $this->context .'.filter.post', 'filter_post', '', 'string' );
-		$this->setState ( 'filter.post', $value );
-
-		// List state information.
-		parent::populateState('filename', 'asc');
+		$value = $this->getUserStateFromRequest ( 'com_kunena.admin.attachments.list.search', 'search', '', 'string' );
+		$this->setState ( 'list.search', $value );
 	}
 
-	protected function getStoreId($id = '') {
-		// Compile the store id.
-		$id	.= ':'.$this->getState('filter.title');
-		$id	.= ':'.$this->getState('filter.type');
-		$id	.= ':'.$this->getState('filter.size');
-		$id	.= ':'.$this->getState('filter.dims');
-		$id	.= ':'.$this->getState('filter.username');
-		$id	.= ':'.$this->getState('filter.post');
+	public function getItems() {
+		$db = JFactory::getDBO ();
 
-		return parent::getStoreId($id);
+		$where = '';
+		if ($this->getState ( 'list.search' )) {
+			$where = ' WHERE LOWER( a.filename ) LIKE '.$db->Quote( '%'.$db->getEscaped( $this->getState ( 'list.search' ), true ).'%', false ).' OR LOWER( a.filetype ) LIKE '.$db->Quote( '%'.$db->getEscaped( $this->getState ( 'list.search' ), true ).'%', false );
+		}
+
+		$orderby = ' ORDER BY '. $this->getState ( 'list.ordering' ) .' '. $this->getState ( 'list.direction' );
+
+		$db->setQuery ( "SELECT COUNT(*) FROM #__kunena_attachments AS a LEFT JOIN #__kunena_messages AS b ON a.mesid=b.id".$where.$orderby);
+		$total = $db->loadResult ();
+		KunenaError::checkDatabaseError();
+
+		$this->setState ( 'list.total', $total );
+
+		$query = "SELECT a.*, b.catid, b.thread FROM #__kunena_attachments AS a LEFT JOIN #__kunena_messages AS b ON a.mesid=b.id".$where.$orderby;
+		$db->setQuery ( $query, $this->getState ( 'list.start'), $this->getState ( 'list.limit') );
+		$uploaded = $db->loadObjectlist();
+		if (KunenaError::checkDatabaseError()) return;
+
+		return $uploaded;
 	}
 
-	protected function getListQuery() {
-		$db = $this->getDbo();
-		$query = $db->getQuery(true);
-
-		$query->select(
-			$this->getState(
-				'list.select',
-				'a.id, a.mesid, a.userid, a.size, a.folder, a.filetype, a.filename'
-			)
-		);
-
-		$query->from('#__kunena_attachments AS a');
-
-		$query->select('m.subject AS post_title');
-		$query->select('m.name AS user_title');
-		$query->join('LEFT', '#__kunena_messages AS m ON m.id = a.mesid');
-
-
-		//$query->join('LEFT', '#__kunena_messages AS u ON u.userid = a.userid');
-
-		$filter = $this->getState('filter.title');
-		if (!empty($filter)) {
-			$title = $db->Quote('%'.$db->escape($filter, true).'%');
-			$query->where('(a.filename LIKE '.$title.')');
-		}
-
-		$filter = $this->getState('filter.type');
-		if (!empty($filter)) {
-			$type = $db->Quote('%'.$db->escape($filter, true).'%');
-			$query->where('(a.filetype LIKE '.$type.')');
-		}
-
-		// TODO: support < > and ranges
-		$filter = $this->getState('filter.size');
-		if (!empty($filter)) {
-			$size = $db->Quote('%'.$db->escape($filter, true).'%');
-			$query->where('(a.size LIKE '.$size.')');
-		}
-
-		$filter = $this->getState('filter.username');
-		if (!empty($filter)) {
-			$username = $db->Quote('%'.$db->escape($filter, true).'%');
-			$query->where('(m.name LIKE '.$username.')');
-		}
-
-		$filter = $this->getState('filter.post');
-		if (!empty($filter)) {
-			$post = $db->Quote('%'.$db->escape($filter, true).'%');
-			$query->where('(m.subject LIKE '.$post.')');
-		}
-
-		// Add the list ordering clause.
-		$direction	= strtoupper($this->state->get('list.direction'));
-		switch ($this->state->get('list.ordering')) {
-			case 'title':
-				$query->order('a.filename ' . $direction);
-				break;
-			case 'type':
-				$query->order('a.filetype ' . $direction);
-				break;
-			case 'size':
-				$query->order('a.size ' . $direction);
-				break;
-			case 'username':
-				$query->order('m.name ' . $direction);
-				break;
-			case 'post':
-				$query->order('m.subject ' . $direction);
-				break;
-			default:
-				$query->order('a.id ' . $direction);
-		}
-
-		//echo nl2br(str_replace('#__','jos_',$query));
-		return $query;
+	public function getAdminNavigation() {
+		$navigation = new JPagination ($this->getState ( 'list.total'), $this->getState ( 'list.start'), $this->getState ( 'list.limit') );
+		return $navigation;
 	}
 }

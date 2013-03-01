@@ -201,8 +201,8 @@ abstract class LiveUpdateAbstractConfig extends JObject
 				->where($db->qn('type').' = '.$db->q('component'))
 				->where($db->qn('element').' = '.$db->q($this->_extensionName));
 		} else {
-			$sql = 'SELECT '.$db->nameQuote('params').' FROM '.$db->nameQuote('#__components').
-				' WHERE '.$db->nameQuote('option').' = '.$db->Quote($this->_extensionName).
+			$sql = 'SELECT '.$db->quoteName('params').' FROM '.$db->quoteName('#__components').
+				' WHERE '.$db->quoteName('option').' = '.$db->Quote($this->_extensionName).
 				" AND `parent` = 0 AND `menuid` = 0";
 		}
 		$db->setQuery($sql);

@@ -111,7 +111,7 @@ class KunenaUpload extends JObject {
 		if (!$this->fileName) {
 			return JError::raiseError(404, JText::_ ( 'COM_KUNENA_UPLOAD_ERROR_NO_FILE' ));
 		}
-		if (! JSession::checkToken ('get')) {
+		if (! JRequest::checkToken ('get')) {
 			$this->setError(JText::_ ( 'COM_KUNENA_UPLOAD_ERROR_NOT_UPLOADED' ));
 		}
 

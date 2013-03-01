@@ -155,6 +155,7 @@ class KunenaViewTopics extends KunenaView {
 	}
 
 	function displayTopicRows() {
+		require_once KPATH_SITE.'/lib/kunena.link.class.php';
 		$firstpost = $this->state->get ( 'list.mode' ) == 'topics';
 		foreach ( $this->topics as $topic ) {
 			if ($firstpost) {
@@ -181,6 +182,7 @@ class KunenaViewTopics extends KunenaView {
 	}
 
 	function displayPostRows() {
+		require_once KPATH_SITE.'/lib/kunena.link.class.php';
 		foreach ( $this->messages as $message ) {
 			if (!isset($this->topics[$message->thread])) {
 				// TODO: INTERNAL ERROR

@@ -20,7 +20,7 @@ jimport('joomla.application.component.model');
  *
  * @since		1.6
  */
-class KunenaModelSchema extends JModelLegacy
+class KunenaModelSchema extends JModel
 {
 	/**
 	 * Flag to indicate model state initialization.
@@ -201,7 +201,7 @@ class KunenaModelSchema extends JModelLegacy
 		$schema[$filename] = new DOMDocument('1.0', 'utf-8');
 		$schema[$filename]->formatOutput = true;
 		$schema[$filename]->preserveWhiteSpace = false;
-		$schema[$filename]->validateOnParse = false;
+		$dom->validateOnParse = false;
 		$schema[$filename]->load($filename);
 		return $schema[$filename];
 	}

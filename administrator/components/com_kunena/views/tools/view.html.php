@@ -60,7 +60,9 @@ class KunenaAdminViewTools extends KunenaView {
 	}
 
 	protected function setToolBarDefault() {
-		JToolBarHelper::title ( JText::_('COM_KUNENA').': '.JText::_('COM_KUNENA_FORUM_TOOLS'), 'kunena.png' );
+		JToolBarHelper::title ( JText::_('COM_KUNENA'), 'kunena.png' );
+		JToolBarHelper::spacer();
+		JToolBarHelper::back();
 	}
 
 	protected function setToolBarPrune() {
@@ -94,13 +96,9 @@ class KunenaAdminViewTools extends KunenaView {
 		JToolBarHelper::title ( JText::_('COM_KUNENA'), 'kunena.png' );
 		JToolBarHelper::spacer();
 		if (!empty($this->legacy)) JToolBarHelper::custom('fixlegacy', 'edit.png', 'edit_f2.png', 'COM_KUNENA_A_MENU_TOOLBAR_FIXLEGACY', false);
-		if (version_compare(JVERSION, '3', '>')) {
-			JToolBarHelper::custom('trashmenu', 'apply.png', 'apply_f2.png', 'COM_KUNENA_A_TRASH_MENU', false);
-		} else {
-			JToolBarHelper::custom('trashmenu', 'restore.png', 'restore_f2.png', 'COM_KUNENA_A_TRASH_MENU', false);
-		}
+		JToolBarHelper::custom('trashmenu', 'restore.png', 'restore_f2.png', 'COM_KUNENA_A_TRASH_MENU', false);
 		JToolBarHelper::spacer();
-		JToolBarHelper::cancel();
+		JToolBarHelper::back();
 		JToolBarHelper::spacer();
 	}
 
@@ -109,7 +107,7 @@ class KunenaAdminViewTools extends KunenaView {
 		JToolBarHelper::spacer();
 		JToolBarHelper::trash('purgerestatements', 'COM_KUNENA_A_PURGE_RE_MENU_VALIDATE', false);
 		JToolBarHelper::spacer();
-		JToolBarHelper::cancel();
+		JToolBarHelper::back();
 		JToolBarHelper::spacer();
 	}
 }

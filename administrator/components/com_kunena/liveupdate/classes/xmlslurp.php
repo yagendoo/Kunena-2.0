@@ -85,8 +85,10 @@ class LiveUpdateXMLSlurp extends JObject
 			return array('version' => '', 'date' => '', 'xmlfile' => '');
 		}
 		
-		$xml = JFactory::getXMLParser('Simple');
-		if (!$xml->loadFile($filename)) {
+		//$xml = JFactory::getXMLParser('Simple');
+		$xml = JFactory::getXML($filename);
+		//if (!$xml->loadFile($filename)) {
+		if (empty($xml)) {
 			unset($xml);
 			return array('version' => '', 'date' => '', 'xmlfile' => '');
 		}
@@ -166,8 +168,9 @@ class LiveUpdateXMLSlurp extends JObject
 			return array('version' => '', 'date' => '', 'xmlfile' => '');
 		}
 		
-		$xml = JFactory::getXMLParser('Simple');
-		if (!$xml->loadFile($filename)) {
+		//$xml = JFactory::getXMLParser('Simple');
+		$xml = JFactory::getXML($filename);
+		if (empty($xml)) {
 			unset($xml);
 			return array('version' => '', 'date' => '', 'xmlfile' => '');
 		}
@@ -220,7 +223,8 @@ class LiveUpdateXMLSlurp extends JObject
 		}
 
 		$xml = JFactory::getXMLParser('Simple');
-		if (!$xml->loadFile($filename)) {
+		$xml = JFactory::getXML($filename);
+		if (empty($xml)) {
 			unset($xml);
 			return array('version' => '', 'date' => '', 'xmlfile' => '');
 		}
@@ -276,8 +280,9 @@ class LiveUpdateXMLSlurp extends JObject
 			return array('version' => '', 'date' => '', 'xmlfile' => '');
 		}
 		
-		$xml = JFactory::getXMLParser('Simple');
-		if (!$xml->loadFile($filename)) {
+		//$xml = JFactory::getXMLParser('Simple');
+		$xml = JFactory::getXML($filename);
+		if (empty($xml)) {
 			unset($xml);
 			return array('version' => '', 'date' => '', 'xmlfile' => '');
 		}
@@ -332,8 +337,9 @@ class LiveUpdateXMLSlurp extends JObject
 			return array('version' => '', 'date' => '', 'xmlfile' => '');
 		}
 
-		$xml = JFactory::getXMLParser('Simple');
-		if (!$xml->loadFile($filename)) {
+		//$xml = JFactory::getXMLParser('Simple');
+		$xml = JFactory::getXML($filename);
+		if (empty($xml)) {
 			unset($xml);
 			return array('version' => '', 'date' => '', 'xmlfile' => '');
 		}
@@ -378,8 +384,9 @@ class LiveUpdateXMLSlurp extends JObject
 				return $filename;
 				
 			} else {
-				$xml = JFactory::getXMLParser('simple');
-				$result = $xml->loadFile($filename);
+				//$xml = JFactory::getXMLParser('simple');
+				$result = JFactory::getXML($filename);
+				//$result = $xml->loadFile($filename);
 				if(!$result) continue;
 				if(($xml->document->name() != 'install') && ($xml->document->name() != 'extension') && ($xml->document->name() != 'mosinstall')) continue;
 				unset($xml);

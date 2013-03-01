@@ -67,8 +67,8 @@ abstract class KunenaRouteLegacy {
 	}
 
 	public static function convert($uri, $showstart = 1) {
-		// Make sure that input is JUri to legacy Kunena func=xxx
-		if (!($uri instanceof JUri)) {
+		// Make sure that input is JURI to legacy Kunena func=xxx
+		if (!($uri instanceof JURI)) {
 			return;
 		}
 		if ($uri->getVar('option') != 'com_kunena') {
@@ -85,8 +85,6 @@ abstract class KunenaRouteLegacy {
 			KUNENA_PROFILER ? KunenaProfiler::instance()->stop('function '.__CLASS__.'::'.__FUNCTION__.'()') : null;
 			return;
 		}
-
-		$legacy = clone $uri;
 
 		// Turn &do=xxx into &layout=xxx
 		if ($uri->getVar('do')) {
@@ -541,16 +539,21 @@ abstract class KunenaRouteLegacy {
 				break;
 
 		}
-		if ($changed) JLog::add("Legacy URI {$legacy->toString(array('path', 'query'))} was converted to {$uri->toString(array('path', 'query'))}", JLog::DEBUG, 'kunena');
 		KUNENA_PROFILER ? KunenaProfiler::instance()->stop('function '.__CLASS__.'::'.__FUNCTION__.'()') : null;
 		return $changed;
 	}
 
 	public static function convertMenuItem($item) {
-		$uri = JUri::getInstance($item->link);
+		$uri = JURI::getInstance($item->link);
 		$view = $uri->getVar('func', $uri->getVar('view'));
 
-		$params = new JRegistry($item->params);
+		if (version_compare(JVERSION, '1.6', '>')) {
+			// Joomla 1.6+
+			$params = new JRegistry($item->params);
+		} else {
+			// Joomla 1.5
+			$params = new JParameter($item->params);
+		}
 
 		if (self::convert($uri, 0)) {
 

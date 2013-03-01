@@ -165,7 +165,7 @@ class KunenaAdminModelReport extends KunenaModel {
 
 		$report = '[confidential][b]Joomla! version:[/b] '.JVERSION.' [b]Platform:[/b] '.$_SERVER['SERVER_SOFTWARE'].' ('
 	    .$_SERVER['SERVER_NAME'].') [b]PHP version:[/b] '.phpversion().' | '.$safe_mode.' | '.$register_globals.' | '.$mbstring
-	    .' | '.$gd_support.' | [b]MySQL version:[/b] '.$kunena_db->getVersion().' | [b]Base URL:[/b]' .JUri::root(). '[/confidential][quote][b]Database collation check:[/b] '.$collation.'
+	    .' | '.$gd_support.' | [b]MySQL version:[/b] '.$kunena_db->getVersion().' | [b]Base URL:[/b]' .JURI::root(). '[/confidential][quote][b]Database collation check:[/b] '.$collation.'
 		[/quote][quote][b]Legacy mode:[/b] '.$jconfig_legacy.' | [b]Joomla! SEF:[/b] '.$jconfig_sef.' | [b]Joomla! SEF rewrite:[/b] '
 	    .$jconfig_sef_rewrite.' | [b]FTP layer:[/b] '.$jconfig_ftp.' |
 	    [confidential][b]Mailer:[/b] '.$this->app->getCfg('mailer' ).' | [b]Mail from:[/b] '.$this->app->getCfg('mailfrom' ).' | [b]From name:[/b] '.$this->app->getCfg('fromname' ).' | [b]SMTP Secure:[/b] '.$this->app->getCfg('smtpsecure' ).' | [b]SMTP Port:[/b] '.$this->app->getCfg('smtpport' ).' | [b]SMTP User:[/b] '.$jconfig_smtpuser.' | [b]SMTP Host:[/b] '.$this->app->getCfg('smtphost' ).' [/confidential] [b]htaccess:[/b] '.$htaccess
@@ -233,33 +233,28 @@ class KunenaAdminModelReport extends KunenaModel {
 		$db = JFactory::getDBO ();
 
 		// Get Joomla! frontend assigned template
-		$query = "SELECT template FROM #__template_styles WHERE client_id=0 AND home=1";
+		if (version_compare(JVERSION, '1.6','>')) {
+			// Joomla 1.6+
+			$query = "SELECT template FROM #__template_styles WHERE client_id=0 AND home=1";
+		} else {
+			// Joomla 1.5
+			$query = "SELECT template FROM #__templates_menu WHERE client_id=0 AND menuid=0";
+		}
 
 		$db->setQuery($query);
 		$template = $db->loadResult();
 		if (KunenaError::checkDatabaseError()) return;
 
-		$xml = simplexml_load_file(JPATH_SITE.'/templates/'.$template.'/templateDetails.xml');
-		if (!$xml || $xml->getName() != 'extension') {
-			return false;
-		}
+		$xml = JFactory::getXMLparser('Simple');
+		$xml->loadFile(JPATH_SITE.'/templates/'.$template.'/templateDetails.xml');
 
-		$data = new stdClass();
-		$data->name = (string) $xml->name;
-		$data->type = (string) $xml->attributes()->type;
-		$data->creationdate = (string) $xml->creationdate;
-		$data->author = (string) $xml->author;
-		$data->copyright = (string) $xml->copyright;
-		$data->authorEmail = (string) $xml->authorEmail;
-		$data->authorUrl = (string) $xml->authorUrl;
-		$data->version = (string) $xml->version;
-		$data->description = (string) $xml->description;
-		$data->thumbnail = (string) $xml->thumbnail;
+		$templatedetails = new stdClass();
+		$templatedetails->name = $template;
+		$templatedetails->creationdate = $xml->document->creationDate[0]->data();
+		$templatedetails->author = $xml->document->author[0]->data();
+		$templatedetails->version = $xml->document->version[0]->data();
 
-		if (!$data->creationdate) $data->creationdate = JText::_('Unknown');
-		if (!$data->author) JText::_('Unknown');
-
-		return $data;
+		return $templatedetails;
 	}
 
 	/**
@@ -341,7 +336,13 @@ class KunenaAdminModelReport extends KunenaModel {
 			$path = JPATH_SITE . "/modules/{$extension}";
 		} else {
 			list($folder, $element) = explode('/', $extension, 2);
-			$path = JPATH_PLUGINS . "/{$folder}/{$element}";
+			if (version_compare(JVERSION, '1.6','>')) {
+				// Joomla 1.6+
+				$path = JPATH_PLUGINS . "/{$folder}/{$element}";
+			} else {
+				// Joomla 1.5
+				$path = JPATH_PLUGINS . "/{$folder}/{$element}.xml";
+			}
 		}
 		$version = $this->findExtensionVersion($path);
 		return $version ? '[u]'.$name.'[/u] '.$version : '';
@@ -368,9 +369,15 @@ class KunenaAdminModelReport extends KunenaModel {
 
 			foreach ($xmlfiles as $file) {
 				// Is it a valid Joomla installation manifest file?
-				$manifest = $installer->isManifest($file);
-				$newversion = $manifest ? (string) $manifest->version[0] : null;
-
+				if (version_compare(JVERSION, '1.6','>')) {
+					// Joomla 1.6+
+					$manifest = $installer->isManifest($file);
+					$newversion = $manifest ? (string) $manifest->version[0] : null;
+				} else {
+					// Joomla 1.5
+					$manifest = $installer->_isManifest($file);
+					$newversion = $manifest ? (string) $manifest->document->version[0]->data() : null;
+				}
 				// We check all files just in case if there are more than one manifest file
 				if (version_compare($newversion, $version, '>')) {
 					$version = $newversion;
@@ -388,7 +395,11 @@ class KunenaAdminModelReport extends KunenaModel {
 		$plugin = JPluginHelper::getPlugin('kunena', $name);
 
 		if ($plugin) {
-			$pluginParams = new JRegistry($plugin->params);
+			if (version_compare(JVERSION, '1.6', '>')) {
+				$pluginParams = new JRegistry($plugin->params);
+			} else {
+				$pluginParams = new JParameter($plugin->params);
+			}
 			$params = $pluginParams->toArray();
 			$plugin_final[] = '[b]'.$desc.'[/b] Enabled: ';
 			foreach ($params as $name=>$value) {

@@ -29,7 +29,7 @@ abstract class KunenaHtmlParser {
 		$smileyArray = array ();
 		$template = KunenaFactory::getTemplate();
 		foreach ( $smilies as $smiley ) { // We load all smileys in array, so we can sort them
-			$smileyArray [$smiley->code] = JUri::root(true) .'/'. $template->getSmileyPath($smiley->file);
+			$smileyArray [$smiley->code] = JURI::root(true) .'/'. $template->getSmileyPath($smiley->file);
 		}
 
 		if ($emoticonbar == 0) { // don't sort when it's only for use in the emoticonbar
@@ -108,12 +108,24 @@ abstract class KunenaHtmlParser {
 			$row = new stdClass();
 			$row->text =& $content;
 			// Run events
-			$params = new JRegistry();
+			if (version_compare(JVERSION, '1.6', '>')) {
+				// Joomla 1.6+
+				$params = new JRegistry();
+			} else {
+				// Joomla 1.5
+				$params = new JParameter( '' );
+			}
 			$params->set('ksource', 'kunena');
 
 			$dispatcher = JDispatcher::getInstance();
 			JPluginHelper::importPlugin('content');
-			$results = $dispatcher->trigger('onContentPrepare', array ('text', &$row, &$params, 0));
+			if (version_compare(JVERSION, '1.6', '>')) {
+				// Joomla 1.6+
+				$results = $dispatcher->trigger('onContentPrepare', array ('text', &$row, &$params, 0));
+			} else {
+				// Joomla 1.5
+				$results = $dispatcher->trigger('onPrepareContent', array (&$row, &$params, 0));
+			}
 			$content = $row->text;
 		}
 		return $content;

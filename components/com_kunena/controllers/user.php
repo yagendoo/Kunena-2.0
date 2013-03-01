@@ -10,6 +10,8 @@
  **/
 defined ( '_JEXEC' ) or die ();
 
+require_once KPATH_SITE . '/lib/kunena.link.class.php';
+
 /**
  * Kunena User Controller
  *
@@ -22,7 +24,13 @@ class KunenaControllerUser extends KunenaController {
 		$active = $this->app->getMenu ()->getActive ();
 
 		if (!empty($active)) {
-			$params = $active->params;
+			if (version_compare(JVERSION, '1.6', '>')) {
+				// Joomla 1.6+
+				$params = $active->params;
+			} else {
+				// Joomla 1.5
+				$params = new JParameter($active->params);
+			}
 			$redirect = $params->get('integration', 1);
 		}
 		if ($redirect && JRequest::getCmd('format', 'html') == 'html') {
@@ -44,7 +52,7 @@ class KunenaControllerUser extends KunenaController {
 	}
 
 	public function change() {
-		if (! JSession::checkToken ('get')) {
+		if (! JRequest::checkToken ('get')) {
 			$this->app->enqueueMessage ( JText::_ ( 'COM_KUNENA_ERROR_TOKEN' ), 'error' );
 			$this->redirectBack ();
 		}
@@ -64,7 +72,7 @@ class KunenaControllerUser extends KunenaController {
 
 	public function save() {
 		// TODO: allow moderators to save another users profile (without account info)
-		if (! JSession::checkToken('post')) {
+		if (! JRequest::checkToken ()) {
 			$this->app->enqueueMessage ( JText::_ ( 'COM_KUNENA_ERROR_TOKEN' ), 'error' );
 			$this->redirectBack ();
 		}
@@ -94,7 +102,7 @@ class KunenaControllerUser extends KunenaController {
 
 	function ban() {
 		$user = KunenaFactory::getUser(JRequest::getInt ( 'userid', 0 ));
-		if(!$user->exists() || !JSession::checkToken('post')) {
+		if(!$user->exists() || !JRequest::checkToken()) {
 			$this->app->redirect ( $user->getUrl(false), JText::_('COM_KUNENA_ERROR_TOKEN'), 'error' );
 			return;
 		}
@@ -204,13 +212,13 @@ class KunenaControllerUser extends KunenaController {
 		$this->app->redirect ( $user->getUrl(false) );
 	}
 
-	function cancel() {
-		$user = KunenaFactory::getUser();
-		$this->app->redirect ( $user->getUrl(false) );
+	function cancel()
+	{
+		$this->app->redirect ( CKunenaLink::GetMyProfileURL(null, '', false) );
 	}
 
 	function login() {
-		if(!JFactory::getUser()->guest || !JSession::checkToken('post')) {
+		if(!JFactory::getUser()->guest || !JRequest::checkToken()) {
 			$this->app->redirect ( JRequest::getVar ( 'HTTP_REFERER', JURI::base ( true ), 'server' ), JText::_('COM_KUNENA_ERROR_TOKEN'), 'error' );
 		}
 
@@ -224,7 +232,7 @@ class KunenaControllerUser extends KunenaController {
 	}
 
 	function logout() {
-		if(!JSession::checkToken('request')) {
+		if(!JRequest::checkToken('request')) {
 			$this->app->redirect ( JRequest::getVar ( 'HTTP_REFERER', JURI::base ( true ), 'server' ), JText::_('COM_KUNENA_ERROR_TOKEN'), 'error' );
 		}
 
@@ -236,7 +244,7 @@ class KunenaControllerUser extends KunenaController {
 	// Internal functions:
 
 	protected function karma($karmaDelta) {
-		if (! JSession::checkToken ('get')) {
+		if (! JRequest::checkToken ('get')) {
 			$this->app->enqueueMessage ( JText::_ ( 'COM_KUNENA_ERROR_TOKEN' ), 'error' );
 			$this->redirectBack ();
 		}
@@ -290,8 +298,6 @@ class KunenaControllerUser extends KunenaController {
 
 	// Mostly copied from Joomla 1.5
 	protected function saveUser(){
-		$user = KunenaUserHelper::get($this->user->id);
-
 		// we only allow users to edit few fields
 		$allow = array('name', 'email', 'password', 'password2', 'params');
 		if ($this->config->usernamechange) {
@@ -308,8 +314,8 @@ class KunenaControllerUser extends KunenaController {
 		$post = array_intersect_key($post, array_flip($allow));
 
 		// get the redirect
-		$return = $user->getUrl(false);
-		$err_return = $user->getUrl(false, 'edit');
+		$return = CKunenaLink::GetMyProfileURL($this->user->id, '', false);
+		$err_return = CKunenaLink::GetMyProfileURL($this->user->id, 'edit', false);
 
 		// do a password safety check
 		if ( !empty($post['password']) && !empty($post['password2']) ) {
@@ -448,7 +454,7 @@ class KunenaControllerUser extends KunenaController {
 	}
 
 	public function delfile() {
-		if (! JSession::checkToken('post')) {
+		if (! JRequest::checkToken ()) {
 			$this->app->enqueueMessage ( JText::_ ( 'COM_KUNENA_ERROR_TOKEN' ), 'error' );
 			$this->redirectBack ();
 		}

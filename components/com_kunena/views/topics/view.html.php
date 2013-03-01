@@ -14,7 +14,7 @@ defined ( '_JEXEC' ) or die ();
  * Topics View
  */
 class KunenaViewTopics extends KunenaView {
-	function displayDefault($tpl = null) {
+	function displayDefault($tpl = null) {		
 		$this->layout = 'default';
 		$this->params = $this->state->get('params');
 		$this->Itemid = $this->get('Itemid');
@@ -32,7 +32,7 @@ class KunenaViewTopics extends KunenaView {
 		}
 		$this->rssURL = $this->config->enablerss ? KunenaRoute::_('&format=feed') : '';
 
-		$this->_prepareDocument('default');
+		$this->_prepareDocument('default');		
 
 		$this->display($tpl);
 	}
@@ -90,12 +90,18 @@ class KunenaViewTopics extends KunenaView {
 		}
 	}
 
-	function displayTopicRows() {
+	function displayTopicRows() {		
 		$lasttopic = NULL;
 		$this->position = 0;
 
 		// Run events
-		$params = new JRegistry();
+		if (version_compare(JVERSION, '1.6', '>')) {
+			// Joomla 1.6+
+			$params = new JRegistry();
+		} else {
+			// Joomla 1.5
+			$params = new JParameter( '' );
+		}
 		$params->set('ksource', 'kunena');
 		$params->set('kunena_view', 'user');
 		$params->set('kunena_layout', 'topics');
@@ -104,6 +110,7 @@ class KunenaViewTopics extends KunenaView {
 		JPluginHelper::importPlugin('kunena');
 
 		$dispatcher->trigger('onKunenaPrepare', array ('kunena.topics', &$this->topics, &$params, 0));
+
 
 		foreach ( $this->topics as $this->topic ) {
 			$this->position++;
@@ -138,15 +145,16 @@ class KunenaViewTopics extends KunenaView {
 					$this->spacing = 1;
 				} else {
 					$this->spacing = 0;
-				}
-				$contents = $this->loadTemplateFile('row');
+				}				
+				$contents = $this->loadTemplateFile('row');				
 				if ($usertype == 'guest') $contents = preg_replace_callback('|\[K=(\w+)(?:\:([\w-_]+))?\]|', array($this, 'fillTopicInfo'), $contents);
 				// FIXME: enable caching after fixing the issues
 				//if ($this->cache) $cache->store($contents, $cachekey, $cachegroup);
-			}
+			}			
 			if ($usertype != 'guest') {
 				$contents = preg_replace_callback('|\[K=(\w+)(?:\:([\w-_]+))?\]|', array($this, 'fillTopicInfo'), $contents);
 			}
+
 			echo $contents;
 			$lasttopic = $this->topic;
 		}
@@ -160,7 +168,7 @@ class KunenaViewTopics extends KunenaView {
 				return $this->topic->getIcon();
 			case 'TOPIC_NEW_COUNT':
 				return $this->topic->unread ? $this->getTopicLink ( $this->topic, 'unread', '<sup class="kindicator-new">(' . $this->topic->unread . ' ' . JText::_('COM_KUNENA_A_GEN_NEWCHAR') . ')</sup>' ) : '';
-			case 'DATE':
+			case 'DATE':				
 				$date = new KunenaDate($matches[2]);
 				return $date->toSpan('config_post_dateformat', 'config_post_dateformat_hover');
 		}
@@ -171,7 +179,13 @@ class KunenaViewTopics extends KunenaView {
 		$this->position = 0;
 
 		// Run events
-		$params = new JRegistry();
+		if (version_compare(JVERSION, '1.6', '>')) {
+			// Joomla 1.6+
+			$params = new JRegistry();
+		} else {
+			// Joomla 1.5
+			$params = new JParameter( '' );
+		}
 		$params->set('ksource', 'kunena');
 		$params->set('kunena_view', 'user');
 		$params->set('kunena_layout', 'posts');
@@ -241,17 +255,17 @@ class KunenaViewTopics extends KunenaView {
 
 	function displayTimeFilter($id = 'kfilter-select-time', $attrib = 'class="kinputbox" onchange="this.form.submit()" size="1"') {
 		// make the select list for time selection
-		$timesel[] = JHtml::_('select.option', -1, JText::_('COM_KUNENA_SHOW_ALL'));
-		$timesel[] = JHtml::_('select.option', 0, JText::_('COM_KUNENA_SHOW_LASTVISIT'));
-		$timesel[] = JHtml::_('select.option', 4, JText::_('COM_KUNENA_SHOW_4_HOURS'));
-		$timesel[] = JHtml::_('select.option', 8, JText::_('COM_KUNENA_SHOW_8_HOURS'));
-		$timesel[] = JHtml::_('select.option', 12, JText::_('COM_KUNENA_SHOW_12_HOURS'));
-		$timesel[] = JHtml::_('select.option', 24, JText::_('COM_KUNENA_SHOW_24_HOURS'));
-		$timesel[] = JHtml::_('select.option', 48, JText::_('COM_KUNENA_SHOW_48_HOURS'));
-		$timesel[] = JHtml::_('select.option', 168, JText::_('COM_KUNENA_SHOW_WEEK'));
-		$timesel[] = JHtml::_('select.option', 720, JText::_('COM_KUNENA_SHOW_MONTH'));
-		$timesel[] = JHtml::_('select.option', 8760, JText::_('COM_KUNENA_SHOW_YEAR'));
-		echo JHtml::_('select.genericlist', $timesel, 'sel', $attrib, 'value', 'text', $this->state->get('list.time'), $id);
+		$timesel[] = JHTML::_('select.option', -1, JText::_('COM_KUNENA_SHOW_ALL'));
+		$timesel[] = JHTML::_('select.option', 0, JText::_('COM_KUNENA_SHOW_LASTVISIT'));
+		$timesel[] = JHTML::_('select.option', 4, JText::_('COM_KUNENA_SHOW_4_HOURS'));
+		$timesel[] = JHTML::_('select.option', 8, JText::_('COM_KUNENA_SHOW_8_HOURS'));
+		$timesel[] = JHTML::_('select.option', 12, JText::_('COM_KUNENA_SHOW_12_HOURS'));
+		$timesel[] = JHTML::_('select.option', 24, JText::_('COM_KUNENA_SHOW_24_HOURS'));
+		$timesel[] = JHTML::_('select.option', 48, JText::_('COM_KUNENA_SHOW_48_HOURS'));
+		$timesel[] = JHTML::_('select.option', 168, JText::_('COM_KUNENA_SHOW_WEEK'));
+		$timesel[] = JHTML::_('select.option', 720, JText::_('COM_KUNENA_SHOW_MONTH'));
+		$timesel[] = JHTML::_('select.option', 8760, JText::_('COM_KUNENA_SHOW_YEAR'));
+		echo JHTML::_('select.genericlist', $timesel, 'sel', $attrib, 'value', 'text', $this->state->get('list.time'), $id);
 	}
 
 	function getPagination($maxpages) {

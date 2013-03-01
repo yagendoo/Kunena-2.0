@@ -72,7 +72,11 @@ class KunenaForumCategory extends KunenaDatabaseObject {
 			$this->setProperties($properties);
 		}
 		$registry = new JRegistry();
-		if (!empty($this->params)) $registry->loadString($this->params);
+		if (version_compare(JVERSION, '1.6', '>')) {
+			if (!empty($this->params)) $registry->loadString($this->params);
+		} else {
+			if (!empty($this->params)) $registry->loadINI($this->params);
+		}
 		$this->params = $registry;
 
 		$this->_alias = $this->get('alias', '');
@@ -156,7 +160,7 @@ class KunenaForumCategory extends KunenaDatabaseObject {
 		} else {
 			$category = KunenaForumCategoryHelper::get($category);
 		}
-		$uri = JUri::getInstance("index.php?option=com_kunena&view=category&catid={$category->id}");
+		$uri = JURI::getInstance("index.php?option=com_kunena&view=category&catid={$category->id}");
 		if ((string)$action === (string)(int)$action) {
 			$uri->setVar('limitstart', $action);
 		}
@@ -452,8 +456,10 @@ class KunenaForumCategory extends KunenaDatabaseObject {
 			$registry = new JRegistry();
 			if (is_array($this->params)) {
 				$registry->loadArray($this->params);
-			} else {
+			} elseif (version_compare(JVERSION, '1.6', '>')) {
 				$registry->loadString($this->params);
+			} else {
+				$registry->loadINI($this->params);
 			}
 			$this->params = $registry;
 		}
@@ -472,7 +478,11 @@ class KunenaForumCategory extends KunenaDatabaseObject {
 			$this->_alias = $this->get('alias', '');
 
 		$registry = new JRegistry();
-		if ($this->params) $registry->loadString($this->params);
+		if (version_compare(JVERSION, '1.6', '>')) {
+			if ($this->params) $registry->loadString($this->params);
+		} else {
+			if ($this->params) $registry->loadINI($this->params);
+		}
 		$this->params = $registry;
 
 		// Register category if it exists

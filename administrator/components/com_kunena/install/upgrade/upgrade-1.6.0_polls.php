@@ -20,7 +20,7 @@ function kunena_upgrade_160_polls($parent) {
 	$tablelist = $db->getTableList ();
 	foreach ( $tablelist as $table ) {
 		if ($table == $db->getPrefix () . 'kunena_polls') {
-			$fields = array_pop ( $db->getTableColumns ( $db->getPrefix () . 'kunena_polls' ) );
+			$fields = array_pop ( $db->getTableFields ( $db->getPrefix () . 'kunena_polls' ) );
 			if (isset ( $fields ['catid'] ) && isset ( $fields ['polltimetolive'] )) {
 				$query = "ALTER TABLE {$db->quoteName($db->getPrefix().'kunena_polls')} DROP COLUMN catid, MODIFY title varchar(50)";
 				$db->setQuery ( $query );
@@ -78,7 +78,7 @@ function kunena_upgrade_160_polls($parent) {
 		}
 
 		if ($table == $db->getPrefix () . 'kunena_polls_options') {
-			$fields = array_pop ( $db->getTableColumns ( $db->getPrefix () . 'kunena_polls_options' ) );
+			$fields = array_pop ( $db->getTableFields ( $db->getPrefix () . 'kunena_polls_options' ) );
 			$query = "ALTER TABLE {$db->quoteName($db->getPrefix().'kunena_polls_options')} MODIFY text varchar(50)";
 			$db->setQuery ( $query );
 			$db->query ();
@@ -87,7 +87,7 @@ function kunena_upgrade_160_polls($parent) {
 		}
 
 		if ($table == $db->getPrefix () . 'kunena_polls_users') {
-			$fields = array_pop ( $db->getTableColumns ( $db->getPrefix () . 'kunena_polls_users' ) );
+			$fields = array_pop ( $db->getTableFields ( $db->getPrefix () . 'kunena_polls_users' ) );
 			if (! isset ( $fields ['id'] ) && ! isset ( $fields ['lastvote'] )) {
 				$query = "ALTER TABLE {$db->quoteName($db->getPrefix().'kunena_polls_users')} MODIFY votes int(11), ADD lastvote int(11)";
 				$db->setQuery ( $query );

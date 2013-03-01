@@ -248,8 +248,7 @@ abstract class JHtmlKunenaGrid
 
 		if (!$loaded)
 		{
-			JHtml::_('behavior.tooltip');
-			// FIXME: is this needed in J!2.5?
+			JHTML::_('behavior.tooltip');
 			KunenaTemplate::getInstance()->addScript ( 'js/grid.js' );
 
 			// Build the behavior script.

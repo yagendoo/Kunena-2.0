@@ -9,6 +9,7 @@
  **/
 defined ( '_JEXEC' ) or die ();
 
+jimport ( 'joomla.application.component.controller' );
 jimport ( 'joomla.application.component.helper' );
 
 /**
@@ -115,20 +116,15 @@ class KunenaController extends JControllerLegacy {
 			if ($vFormat=='html' && !empty($routed->id) && (empty($active->id) || $active->id != $routed->id)) {
 				// Routing has been changed, redirect
 				// FIXME: check possible redirect loops!
-				$route = KunenaRoute::_(null, false);
-				$activeId = !empty($active->id) ? $active->id : 0;
-				JLog::add("Redirect from ".JUri::getInstance()->toString(array('path', 'query'))." ({$activeId}) to {$route} ($routed->id)", JLog::DEBUG, 'kunena');
-				$app->redirect ($route);
+				$app->redirect (KunenaRoute::_(null, false));
 			}
 
-			// Joomla 2.5+ multi-language support
+			// Joomla 1.6+ multi-language support
 			/* // FIXME:
 			if (isset($active->language) && $active->language != '*') {
 				$language = JFactory::getDocument()->getLanguage();
 				if (strtolower($active->language) != strtolower($language)) {
-					$route = KunenaRoute::_(null, false);
-					JLog::add("Language redirect from ".JUri::getInstance()->toString(array('path', 'query'))." to {$route}", JLog::DEBUG, 'kunena');
-					$this->redirect ($route);
+					$this->redirect (KunenaRoute::_(null, false));
 				}
 			}
 			*/
@@ -206,7 +202,7 @@ class KunenaController extends JControllerLegacy {
 	}
 
 	protected function redirectBack($fragment = '') {
-		$httpReferer = JRequest::getVar ( 'HTTP_REFERER', JUri::base ( true ), 'server' );
+		$httpReferer = JRequest::getVar ( 'HTTP_REFERER', JURI::base ( true ), 'server' );
 		JFactory::getApplication ()->redirect ( $httpReferer.($fragment ? '#'.$fragment : '') );
 	}
 

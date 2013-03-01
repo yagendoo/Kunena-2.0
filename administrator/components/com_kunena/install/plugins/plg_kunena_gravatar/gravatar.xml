@@ -13,8 +13,7 @@
 	<files>
 		<filename plugin="gravatar">gravatar.php</filename>
 		<filename>index.html</filename>
-		<filename>avatar.php</filename>
-		<filename>class.php</filename>
+		<folder>gravatar</folder>
 		<folder>language</folder>
 	</files>
 	<config>

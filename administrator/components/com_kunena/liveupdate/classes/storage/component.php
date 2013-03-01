@@ -44,8 +44,8 @@ class LiveUpdateStorageComponent extends LiveUpdateStorage
 				->where($db->qn('type').' = '.$db->q('component'))
 				->where($db->qn('element').' = '.$db->q(self::$component));
 		} else {
-			$sql = 'SELECT '.$db->nameQuote('params').' FROM '.$db->nameQuote('#__components').
-				' WHERE '.$db->nameQuote('option').' = '.$db->Quote(self::$component).
+			$sql = 'SELECT '.$db->quoteName('params').' FROM '.$db->quoteName('#__components').
+				' WHERE '.$db->quoteName('option').' = '.$db->Quote(self::$component).
 				" AND `parent` = 0 AND `menuid` = 0";
 		}
 		$db->setQuery($sql);
@@ -103,8 +103,8 @@ class LiveUpdateStorageComponent extends LiveUpdateStorage
 				->where($db->qn('type').' = '.$db->q('component'))
 				->where($db->qn('element').' = '.$db->q(self::$component));
 		} else {
-			$sql = 'SELECT '.$db->nameQuote('params').' FROM '.$db->nameQuote('#__components').
-				' WHERE '.$db->nameQuote('option').' = '.$db->Quote(self::$component).
+			$sql = 'SELECT '.$db->quoteName('params').' FROM '.$db->quoteName('#__components').
+				' WHERE '.$db->quoteName('option').' = '.$db->Quote(self::$component).
 				" AND `parent` = 0 AND `menuid` = 0";
 		}
 		$db->setQuery($sql);

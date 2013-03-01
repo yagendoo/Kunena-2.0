@@ -24,7 +24,7 @@ class KunenaAdminControllerTrash extends KunenaController {
 	}
 
 	function purge() {
-		if (! JSession::checkToken('post')) {
+		if (! JRequest::checkToken ()) {
 			$this->app->enqueueMessage ( JText::_ ( 'COM_KUNENA_ERROR_TOKEN' ), 'error' );
 			$this->app->redirect ( KunenaRoute::_($this->baseurl, false) );
 		}
@@ -72,7 +72,7 @@ class KunenaAdminControllerTrash extends KunenaController {
 	}
 
 	function restore() {
-		if (! JSession::checkToken('post')) {
+		if (! JRequest::checkToken ()) {
 			$this->app->enqueueMessage ( JText::_ ( 'COM_KUNENA_ERROR_TOKEN' ), 'error' );
 			$this->app->redirect ( KunenaRoute::_($this->baseurl, false) );
 		}

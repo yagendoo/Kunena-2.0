@@ -25,6 +25,8 @@ if (!class_exists('KunenaForum') || !KunenaForum::isCompatible('2.0') || !Kunena
 	return;
 }
 
+
+
 // Load router
 require_once KPATH_SITE . '/router.php';
 
@@ -63,13 +65,13 @@ if ($ksession->userid > 0) {
 $view = JRequest::getWord ( 'func', JRequest::getWord ( 'view', 'home' ) );
 $task = JRequest::getCmd ( 'task' );
 
-if (is_file ( KPATH_SITE . "/controllers/{$view}.php" )) {
+if (is_file ( KPATH_SITE . "/controllers/{$view}.php" )) {	
 	// Load and execute controller
-	$controller = KunenaController::getInstance ();
+	$controller = KunenaController::getInstance ();	
 	KunenaRoute::cacheLoad ();
-	$controller->execute ( $task );
+	$controller->execute ( $task );		
 	KunenaRoute::cacheStore ();
-	$controller->redirect ();
+	$controller->redirect ();	
 } else {
 	// Legacy support
 	$uri = KunenaRoute::current(true);

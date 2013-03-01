@@ -1,6 +1,14 @@
 
 [![Kunena](http://www.kunena.org/images/logo.png)](http://www.kunena.org)
 
+## ABOUT THIS FORK
+
+This was contains various changes to make Kunena run with Joomla 3.0. It's not a completely finished extension but it should help developers migrating there board to Joomla 3.
+
+If you want to try it you should install the current stable version of Kunena for Joomla 2.5 into your Joomla 3 and than overwrite the files with the ones from this repository.
+
+Happy testing. Got questions? Visit us at http://www.yagendoo.com
+
 
 ## ABOUT
 

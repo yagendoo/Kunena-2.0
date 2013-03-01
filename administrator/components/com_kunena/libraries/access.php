@@ -51,8 +51,9 @@ class KunenaAccess {
 				$this->moderatorsByUserid = (array)$data['mu'];
 			}
 		}
+		//$my = JFactory::getUser();
 		// If values were not cached (or users permissions have been changed), force reload
-		if (!isset($this->adminsByCatid)) {
+		if (!isset($this->adminsByCatid)) { // || ($my->id && $my->authorize('com_kunena', 'administrator') == empty($this->adminsByUserid[$my->id][0]) )) {
 			$this->clearCache();
 		}
 	}
@@ -77,7 +78,7 @@ class KunenaAccess {
 		JFactory::getApplication()->setUserState("com_kunena.user{$me->userid}_read", null);
 
 		$roles = array();
-		foreach ($this->accesstypes['all'] as $access) {
+		foreach ($this->accesstypes['all'] as $access) {			
 			if (method_exists($access, 'loadCategoryRoles')) {
 				$this->storeRoles((array) $access->loadCategoryRoles());
 			}
@@ -158,7 +159,7 @@ window.addEvent('domready', function(){
 			foreach ($list as $access) {
 				if (method_exists($access, 'getAccessOptions')) {
 					$string = JText::_('COM_KUNENA_INTEGRATION_TYPE_'.preg_replace('/[^\w\d]/', '_', $type));
-					$accesstypes [$string] = JHtml::_ ( 'select.option', $type, $string );
+					$accesstypes [$string] = JHTML::_ ( 'select.option', $type, $string );
 					$exists |= $type == $category->accesstype;
 					break;
 				}
@@ -168,9 +169,9 @@ window.addEvent('domready', function(){
 		// User has disabled access control
 		if (!$exists) {
 			$string = JText::sprintf('COM_KUNENA_INTEGRATION_UNKNOWN', $category->accesstype);
-			$accesstypes [$string] = JHtml::_ ( 'select.option', $category->accesstype, $string );
+			$accesstypes [$string] = JHTML::_ ( 'select.option', $category->accesstype, $string );
 		}
-		return JHtml::_ ( 'select.genericlist', $accesstypes, 'accesstype', 'class="inputbox" size="'.count($accesstypes).'" onchange="javascript:kShowAccessType(\'kaccess\', $(this))"', 'value', 'text', $category->accesstype );
+		return JHTML::_ ( 'select.genericlist', $accesstypes, 'accesstype', 'class="inputbox" size="'.count($accesstypes).'" onchange="javascript:kShowAccessType(\'kaccess\', $(this))"', 'value', 'text', $category->accesstype );
 	}
 
 
@@ -223,8 +224,8 @@ window.addEvent('domready', function(){
 		return !empty($this->moderatorsByUserid[$user->userid]) ? $this->moderatorsByUserid[$user->userid] : array();
 	}
 
-	public function isAdmin($user = null, $catid = 0) {
-		$user = KunenaFactory::getUser($user);
+	public function isAdmin($user = null, $catid = 0) {		
+		$user = KunenaFactory::getUser($user);		
 
 		// Guests and banned users cannot be administrators
 		if (!$user->exists() || $user->isBanned()) return false;
@@ -233,7 +234,7 @@ window.addEvent('domready', function(){
 		if (JFactory::getApplication()->isAdmin() && $user->userid == KunenaUserHelper::getMyself()->userid)
 			return true;
 
-		// Is user a global administrator?
+		// Is user a global administrator?		
 		if (!empty($this->adminsByUserid[$user->userid][0])) return true;
 		// Is user a category administrator?
 		if (!empty($this->adminsByUserid[$user->userid][$catid])) return true;
@@ -339,7 +340,7 @@ window.addEvent('domready', function(){
 	/**
 	 * Authorise user actions in a category.
 	 *
-	 * Function returns a list of authorised actions. Missing actions are threaded as inherit.
+	 * Function returns a list of authorized actions. Missing actions are threaded as inherit.
 	 *
 	 * @param KunenaForumCategory $category
 	 * @param int $userid
@@ -470,7 +471,7 @@ window.addEvent('domready', function(){
 		return $userids;
 	}
 
-	protected function storeRoles(array $list = null) {
+	protected function storeRoles(array $list = null) {		
 		if (empty($list)) return;
 		foreach ( $list as $item ) {
 			$userid = intval ( $item->user_id );

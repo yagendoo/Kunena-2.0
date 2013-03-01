@@ -31,7 +31,7 @@ class KunenaControllerCategory extends KunenaAdminControllerCategories {
 	}
 
 	function markread() {
-		if (! JSession::checkToken ('request')) {
+		if (! JRequest::checkToken ('request')) {
 			$this->app->enqueueMessage ( JText::_ ( 'COM_KUNENA_ERROR_TOKEN' ), 'error' );
 			$this->redirectBack ();
 		}
@@ -72,7 +72,7 @@ class KunenaControllerCategory extends KunenaAdminControllerCategories {
 	}
 
 	function subscribe() {
-		if (! JSession::checkToken ('get')) {
+		if (! JRequest::checkToken ('get')) {
 			$this->app->enqueueMessage ( JText::_ ( 'COM_KUNENA_ERROR_TOKEN' ), 'error' );
 			$this->redirectBack ();
 		}
@@ -95,7 +95,7 @@ class KunenaControllerCategory extends KunenaAdminControllerCategories {
 	}
 
 	function unsubscribe() {
-		if (! JSession::checkToken ('request') ) {
+		if (! JRequest::checkToken ('request') ) {
 			$this->app->enqueueMessage ( JText::_ ( 'COM_KUNENA_ERROR_TOKEN' ), 'error' );
 			$this->redirectBack ();
 		}

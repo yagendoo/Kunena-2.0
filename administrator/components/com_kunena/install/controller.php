@@ -11,12 +11,14 @@ defined ( '_JEXEC' ) or die ();
 
 require_once JPATH_ADMINISTRATOR . '/components/com_kunena/api.php';
 
+jimport('joomla.application.component.controller');
+
 /**
  * The Kunena Installer Controller
  *
  * @since		1.6
  */
-class KunenaControllerInstall extends JControllerLegacy {
+class KunenaControllerInstall extends JController {
 	protected $step = null;
 	protected $steps = null;
 	protected $model = null;
@@ -31,7 +33,7 @@ class KunenaControllerInstall extends JControllerLegacy {
 
 	// Run from administrator installer
 	function prepare() {
-		if (!JSession::checkToken( 'get' )) {
+		if (!JRequest::checkToken( 'get' )) {
 			$this->setRedirect('index.php?option=com_kunena');
 			return;
 		}
@@ -48,7 +50,7 @@ class KunenaControllerInstall extends JControllerLegacy {
 			sleep(1);
 			$app->setUserState('kunena-prepare', $try);
 			$start = $start? '&start=1' : '';
-			$this->setRedirect('index.php?option=com_kunena&view=install&task=prepare&try='.$try.$start.'&'.JSession::getFormToken().'=1');
+			$this->setRedirect('index.php?option=com_kunena&view=install&task=prepare&try='.$try.$start.'&'. JSession::getFormToken().'=1');
 			$this->redirect();
 		}
 
@@ -89,7 +91,7 @@ class KunenaControllerInstall extends JControllerLegacy {
 	}
 
 	public function run() {
-		if (!JSession::checkToken( 'get' )) {
+		if (!JRequest::checkToken( 'get' )) {
 			$this->setRedirect('index.php?option=com_kunena');
 			return;
 		}
@@ -148,7 +150,7 @@ class KunenaControllerInstall extends JControllerLegacy {
 	}
 
 	public function restart() {
-		if (!JSession::checkToken( 'get' )) {
+		if (!JRequest::checkToken( 'get' )) {
 			$this->setRedirect('index.php?option=com_kunena');
 			return;
 		}
@@ -156,7 +158,7 @@ class KunenaControllerInstall extends JControllerLegacy {
 		$this->run();
 	}
 	function install() {
-		if (!JSession::checkToken( 'get' )) {
+		if (!JRequest::checkToken( 'get' )) {
 			$this->setRedirect('index.php?option=com_kunena');
 			return;
 		}
@@ -164,7 +166,7 @@ class KunenaControllerInstall extends JControllerLegacy {
 		$this->run();
 	}
 	function upgrade() {
-		if (!JSession::checkToken( 'get' )) {
+		if (!JRequest::checkToken( 'get' )) {
 			$this->setRedirect('index.php?option=com_kunena');
 			return;
 		}
@@ -172,7 +174,7 @@ class KunenaControllerInstall extends JControllerLegacy {
 		$this->run();
 	}
 	function downgrade() {
-		if (!JSession::checkToken( 'get' )) {
+		if (!JRequest::checkToken( 'get' )) {
 			$this->setRedirect('index.php?option=com_kunena');
 			return;
 		}
@@ -180,7 +182,7 @@ class KunenaControllerInstall extends JControllerLegacy {
 		$this->run();
 	}
 	function reinstall() {
-		if (!JSession::checkToken( 'get' )) {
+		if (!JRequest::checkToken( 'get' )) {
 			$this->setRedirect('index.php?option=com_kunena');
 			return;
 		}
@@ -188,7 +190,7 @@ class KunenaControllerInstall extends JControllerLegacy {
 		$this->run();
 	}
 	function migrate() {
-		if (!JSession::checkToken( 'get' )) {
+		if (!JRequest::checkToken( 'get' )) {
 			$this->setRedirect('index.php?option=com_kunena');
 			return;
 		}
@@ -196,7 +198,7 @@ class KunenaControllerInstall extends JControllerLegacy {
 		$this->run();
 	}
 	function uninstall() {
-		if (!JSession::checkToken( 'get' )) {
+		if (!JRequest::checkToken( 'get' )) {
 			$this->setRedirect('index.php?option=com_kunena');
 			return;
 		}
@@ -218,7 +220,7 @@ class KunenaControllerInstall extends JControllerLegacy {
 		}
 	}
 	function restore() {
-		if (!JSession::checkToken( 'get' )) {
+		if (!JRequest::checkToken( 'get' )) {
 			$this->setRedirect('index.php?option=com_kunena');
 			return;
 		}
@@ -240,7 +242,7 @@ class KunenaControllerInstall extends JControllerLegacy {
 }
 
 function kunenaInstallerError($type, $errstr) {
-	$model = JModelLegacy::getInstance('Install', 'KunenaModel');
+	$model = JModel::getInstance('Install', 'KunenaModel');
 	$model->addStatus($type, false, $errstr);
 	$app = JFactory::getApplication();
 	$app->redirect ( 'index.php?option=com_kunena&view=install' );

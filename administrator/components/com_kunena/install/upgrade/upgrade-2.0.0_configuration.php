@@ -70,7 +70,13 @@ function kunena_upgrade_200_configuration($parent) {
 		foreach ($integration as $cfgname => $pluginname) {
 			$plugin = $parent->loadPlugin('kunena', $pluginname);
 			if ($plugin) {
-				$params = new JRegistry($plugin->params);
+					if (version_compare(JVERSION, '1.6', '>')) {
+					// Joomla 1.6+
+					$params = new JRegistry($plugin->params);
+				} else {
+					// Joomla 1.5
+					$params = new JParameter($plugin->params);
+				}
 				$plugin->params = $params;
 				$plugins[$cfgname] = $plugin;
 			}
@@ -80,7 +86,13 @@ function kunena_upgrade_200_configuration($parent) {
 			foreach ($plugins as $name => $plugin) {
 				if ($plugin->params->get($type, null) === null) continue;
 				if ($value == 'auto' || $value == $name) {
-					$plugin->enabled = 1;
+					if (version_compare(JVERSION, '1.6','>')) {
+						// Joomla 1.6+
+						$plugin->enabled = 1;
+					} else {
+						// Joomla 1.5
+						$plugin->published = 1;
+					}
 					$plugin->params->set($type, 1);
 				} else {
 					$plugin->params->set($type, 0);
@@ -96,7 +108,8 @@ function kunena_upgrade_200_configuration($parent) {
 		unset($config->activity_limit, $config->alphauserpointsnumchars);
 		foreach ($plugins as $name => $plugin) {
 			$plugin->params = $plugin->params->toString();
-			if (!empty($plugin->enabled)) {
+			// TODO: J!1.5: $plugin->published
+			if (!empty($plugin->enabled) || !empty($plugin->published)) {
 				$plugin->store();
 			}
 		}

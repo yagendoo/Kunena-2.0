@@ -98,8 +98,14 @@ abstract class KunenaForumMessageHelper {
 		// FIXME: use right config setting
 		if ($limit < 1 && empty($params['nolimit'])) $limit = KunenaFactory::getConfig ()->threads_per_page;
 
-		$query = $db->getQuery(true);
-		$query->select('m.*, t.message')
+		$cquery = new KunenaDatabaseQuery();
+		$cquery->select('COUNT(*)')
+			->from('#__kunena_messages AS m')
+			->innerJoin('#__kunena_messages_text AS t ON m.id = t.mesid')
+			->where('m.moved=0'); // TODO: remove column
+
+		$rquery = new KunenaDatabaseQuery();
+		$rquery->select('m.*, t.message')
 			->from('#__kunena_messages AS m')
 			->innerJoin('#__kunena_messages_text AS t ON m.id = t.mesid')
 			->where('m.moved=0') // TODO: remove column
@@ -119,11 +125,13 @@ abstract class KunenaForumMessageHelper {
 				break;
 			case 'mythanks':
 				$userfield = 'th.userid';
-				$query->innerJoin('#__kunena_thankyou AS th ON m.id = th.postid');
+				$cquery->innerJoin('#__kunena_thankyou AS th ON m.id = th.postid');
+				$rquery->innerJoin('#__kunena_thankyou AS th ON m.id = th.postid');
 				break;
 			case 'thankyou':
 				$userfield = 'th.targetuserid';
-				$query->innerJoin('#__kunena_thankyou AS th ON m.id = th.postid');
+				$cquery->innerJoin('#__kunena_thankyou AS th ON m.id = th.postid');
+				$rquery->innerJoin('#__kunena_thankyou AS th ON m.id = th.postid');
 				break;
 			case 'recent':
 			default:
@@ -141,11 +149,14 @@ abstract class KunenaForumMessageHelper {
 		}
 		if (empty($catlist)) return array(0, array());
 		$allowed = implode(',', array_keys($catlist));
-		$query->where("m.catid IN ({$allowed})");
+		$cquery->where("m.catid IN ({$allowed})");
+		$rquery->where("m.catid IN ({$allowed})");
 
-		$query->where($hold);
+		$cquery->where($hold);
+		$rquery->where($hold);
 		if ($user) {
-			$query->where("{$userfield}={$db->Quote($user)}");
+			$cquery->where("{$userfield}={$db->Quote($user)}");
+			$rquery->where("{$userfield}={$db->Quote($user)}");
 		}
 
 		// Negative time means no time
@@ -155,14 +166,14 @@ abstract class KunenaForumMessageHelper {
 			$starttime = JFactory::getDate ()->toUnix () - ($starttime * 3600);
 		}
 		if ($starttime > 0) {
-			$query->where("m.time>{$db->Quote($starttime)}");
+			$cquery->where("m.time>{$db->Quote($starttime)}");
+			$rquery->where("m.time>{$db->Quote($starttime)}");
 		}
 		if ($where) {
-			$query->where($where);
+			$cquery->where($where);
+			$rquery->where($where);
 		}
 
-		$cquery = clone $query;
-		$cquery->clear('select')->clear('order')->select('COUNT(*)');
 		$db->setQuery ( $cquery );
 		$total = ( int ) $db->loadResult ();
 		if (KunenaError::checkDatabaseError() || !$total) return array(0, array());
@@ -171,7 +182,7 @@ abstract class KunenaForumMessageHelper {
 		if ($limit && $total < $limitstart)
 			$limitstart = intval($total / $limit) * $limit;
 
-		$db->setQuery ( $query, $limitstart, $limit );
+		$db->setQuery ( $rquery, $limitstart, $limit );
 		$results = $db->loadAssocList ();
 		if (KunenaError::checkDatabaseError()) return array(0, array());
 

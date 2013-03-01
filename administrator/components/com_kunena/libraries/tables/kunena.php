@@ -50,7 +50,7 @@ abstract class KunenaTable extends JTable {
 		$query	= new KunenaDatabaseQuery();
 		$query->select('*');
 		$query->from($this->_tbl);
-		$fields = array_keys($this->getProperties());
+		$fields = array_keys($this->getProperties());		
 
 		if (is_array($this->_tbl_key)) reset($this->_tbl_key);
 		foreach ($keys as $field => $value) {
@@ -68,8 +68,8 @@ abstract class KunenaTable extends JTable {
 				$this->setError($e);
 				return false;
 			}
-			// Add the search tuple to the query.
-			$query->where($this->_db->quoteName($field).' = '.$this->_db->quote($value));
+			// Add the search tuple to the query.		
+			$query->where($this->_db->quoteName($field).' = '.$this->_db->quote($value));			
 		}
 
 		$this->_db->setQuery($query);
@@ -120,6 +120,7 @@ abstract class KunenaTable extends JTable {
 				continue;
 			}
 			$fields[] = $this->_db->quoteName($k);
+			//$values[] = $this->_db->isQuoted($k) ? $this->_db->Quote($v) : (int) $v;
 			$values[] = $this->_db->Quote($v);
 		}
 		$this->_db->setQuery(sprintf($fmtsql, implode(",", $fields) ,  implode(",", $values)));
@@ -166,6 +167,7 @@ abstract class KunenaTable extends JTable {
 					continue;
 				}
 			} else {
+				//$val = $this->_db->isQuoted($k) ? $this->_db->Quote($v) : (int) $v;
 				$val = $this->_db->Quote($v);
 			}
 			$tmp[] = $this->_db->quoteName($k) . '=' . $val;
@@ -230,8 +232,9 @@ abstract class KunenaTable extends JTable {
 		}
 
 		// Delete the row by primary key.
-		$query = $this->_db->getQuery(true);
-		$query->delete($this->_tbl);
+		$query	= new KunenaDatabaseQuery();
+		$query->delete();
+		$query->from($this->_tbl);
 		foreach ($keys as $key=>$value) {
 			$query->where("{$this->_db->quoteName($key)} = {$this->_db->quote($value)}");
 		}
